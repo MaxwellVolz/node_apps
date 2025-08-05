@@ -1,3 +1,7 @@
 {
-    "url": "https://jsonplaceholder.typicode.com/users"
+    "url": "https://jsonplaceholder.typicode.com/users",
+    "retry": {
+        "maxAttempts": 4,
+        "backoffMs": 1000
+    }
 }

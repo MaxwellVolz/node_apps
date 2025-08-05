@@ -8,6 +8,7 @@
 4. Clearer imports with `'node:fs/promises';` to avoid dependency conflicts
 5. Loading `config.json` with check
 6. Implemented **AbortSignal** to leverage native timeout with *fetch*
+7. Added fetch retry with graceful backoff, config, and default settings
 
 ## 02-native-test
 

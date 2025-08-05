@@ -16,27 +16,50 @@ if (!url) {
   process.exit(1);
 }
 
+// Extract retry options safely with defaults
+const {
+  maxAttempts = 3,
+  backoffMs = 500
+} = config.retry ?? {};
 
-// Fetch with timeout using AbortSignal
-try {
-    const response = await fetch(url, {
-      signal: AbortSignal.timeout(3000)  // Timeout after 3 seconds
-    });
-  
-    if (!response.ok) {
-      throw new Error(`HTTP ${response.status}: ${response.statusText}`);
-    }
-  
-    const users = await response.json();
-    console.log(`Fetched ${users.length} users.`);
-  
-    await writeFile('users.json', JSON.stringify(users, null, 2));
-    console.log('Saved to users.json');
-  } catch (err) {
-    if (err.name === 'TimeoutError') {
-      console.error('Request timed out');
-    } else {
-      console.error('Fetch failed:', err.message);
+// Fetch with retry + timeout
+async function fetchWithRetry(url, options = {}, maxAttempts = 3, backoffMs = 500) {
+  for (let attempt = 1; attempt <= maxAttempts; attempt++) {
+    const signal = AbortSignal.timeout(3000);
+
+    try {
+      const res = await fetch(url, { ...options, signal });
+
+      if (!res.ok) {
+        throw new Error(`HTTP ${res.status}: ${res.statusText}`);
+      }
+
+      return await res.json();
+    } catch (err) {
+      const isLastAttempt = attempt === maxAttempts;
+
+      if (err.name === 'TimeoutError') {
+        console.error(`[Attempt ${attempt}] Timeout while fetching.`);
+      } else {
+        console.error(`[Attempt ${attempt}] Fetch error:`, err.message);
+      }
+
+      if (isLastAttempt) throw err;
+
+      const wait = backoffMs * Math.pow(2, attempt - 1);
+      console.log(`Retrying in ${wait}ms...`);
+      await new Promise((r) => setTimeout(r, wait));
     }
   }
-  
+}
+
+try {
+  const users = await fetchWithRetry(url, {}, maxAttempts, backoffMs);
+  console.log(`Fetched ${users.length} users.`);
+
+  await writeFile('users.json', JSON.stringify(users, null, 2));
+  console.log('Saved to users.json');
+} catch (err) {
+  console.error('Final fetch attempt failed:', err.message);
+  process.exit(1);
+}
