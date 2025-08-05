@@ -1,0 +1,19 @@
+{
+  "name": "d2bot",
+  "version": "0.0.1",
+  "type": "module",
+  "main": "app.js",
+  "scripts": {
+    "start": "node app.js",
+    "test": "node --test",
+    "test:watch": "node --test --watch"
+  },
+  "keywords": [],
+  "author": "Maxwell",
+  "description": "",
+  "dependencies": {
+    "@nut-tree-fork/nut-js": "^4.2.6",
+    "opencv4nodejs-prebuilt-install": "^4.1.209",
+    "screenshot-desktop": "^1.15.1"
+  }
+}
