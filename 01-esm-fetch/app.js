@@ -1,15 +1,42 @@
-// Use the Promises API for clean async FS operations
-import { writeFile } from 'node:fs/promises';
+import { writeFile, readFile } from 'node:fs/promises';
 
-// Use the built-in Fetch API in modern Node
-const response = await fetch('https://jsonplaceholder.typicode.com/users');
+let config;
 
-if (!response.ok) {
-  throw new Error(`Failed to fetch users: ${response.statusText}`);
+try {
+  const configRaw = await readFile('config.json', 'utf8');
+  config = JSON.parse(configRaw);
+} catch (err) {
+  console.error('Failed to read or parse config.json:', err.message);
+  process.exit(1);
 }
 
-const users = await response.json();
-console.log(`Fetched ${users.length} users.`);
+const url = config.url;
+if (!url) {
+  console.error('Missing `url` in config.json');
+  process.exit(1);
+}
 
-await writeFile('users.json', JSON.stringify(users, null, 2));
-console.log('Saved to users.json');
+
+// Fetch with timeout using AbortSignal
+try {
+    const response = await fetch(url, {
+      signal: AbortSignal.timeout(3000)  // Timeout after 3 seconds
+    });
+  
+    if (!response.ok) {
+      throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+    }
+  
+    const users = await response.json();
+    console.log(`Fetched ${users.length} users.`);
+  
+    await writeFile('users.json', JSON.stringify(users, null, 2));
+    console.log('Saved to users.json');
+  } catch (err) {
+    if (err.name === 'TimeoutError') {
+      console.error('Request timed out');
+    } else {
+      console.error('Fetch failed:', err.message);
+    }
+  }
+  
