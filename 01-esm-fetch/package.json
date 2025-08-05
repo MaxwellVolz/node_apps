@@ -1,0 +1,11 @@
+{
+  "name": "01-esm-fetch",
+  "type": "module",
+  "scripts": {
+    "start": "node app.js"
+  },
+  "version": "0.0.1",
+  "keywords": [],
+  "author": "Maxwell",
+  "description": ""
+}
