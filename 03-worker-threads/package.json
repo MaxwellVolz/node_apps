@@ -1,0 +1,11 @@
+{
+  "name": "03-worker-threads",
+  "type": "module",
+  "scripts": {
+    "start": "node main.js"
+  },
+  "version": "0.0.1",
+  "keywords": [],
+  "author": "Maxwell",
+  "description": ""
+}

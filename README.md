@@ -16,3 +16,11 @@
 2. Example asserts `assert.strictEqual`, `assert.throws`
 3. Async test support for **multiply()** with: `test('...', async () => { ... })`
 4. Native file watch with `node --test --watch` from **02-native-test/**
+
+## 03-worker-threads
+
+1. Actually parallelism with shared memory using `node:worker_threads`
+2. Passing args from `main` to `worker`
+3. Send result back to `main` with `parentPort.postMessage()`
+4. The `while` loop simulates a busy-wait (CPU-intensive)
+5. Capturing execution time with `const start = performance.now();`

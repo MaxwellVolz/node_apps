@@ -38,11 +38,12 @@ async function fetchWithRetry(url, options = {}, maxAttempts = 3, backoffMs = 50
     } catch (err) {
       const isLastAttempt = attempt === maxAttempts;
 
-      if (err.name === 'TimeoutError') {
-        console.error(`[Attempt ${attempt}] Timeout while fetching.`);
-      } else {
-        console.error(`[Attempt ${attempt}] Fetch error:`, err.message);
-      }
+      console.error('Processing failed:', {
+        error: err.message,
+        stack: err.stack,
+        timestamp: new Date().toISOString(),
+        attempt: attempt
+      });
 
       if (isLastAttempt) throw err;
 
