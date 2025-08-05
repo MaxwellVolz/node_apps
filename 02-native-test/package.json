@@ -1,0 +1,12 @@
+{
+  "name": "02-native-test",
+  "type": "module",
+  "scripts": {
+    "test": "node --test",
+    "test:watch": "node --test --watch"
+  },
+  "version": "0.0.1",
+  "keywords": [],
+  "author": "Maxwell",
+  "description": ""
+}

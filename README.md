@@ -8,3 +8,10 @@
 4. Clearer imports with `'node:fs/promises';` to avoid dependency conflicts
 5. Loading `config.json` with check
 6. Implemented **AbortSignal** to leverage native timeout with *fetch*
+
+## 02-native-test
+
+1. Native test runner with `node:test` + `node --test`
+2. Example asserts `assert.strictEqual`, `assert.throws`
+3. Async test support for **multiply()** with: `test('...', async () => { ... })`
+4. Native file watch with `node --test --watch` from **02-native-test/**
