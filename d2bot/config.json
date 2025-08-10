@@ -2,5 +2,8 @@
     "motd": "suh",
     "difficulty": "Nightmare",
     "realm": "West",
-    "character": "Sorc_Boi"
+    "character": "Sorc_Boi",
+    "mode": "Online",
+    "characterSlot": 1,
+    "screenCheckInterval": 5
 }

@@ -16,6 +16,7 @@
   "dependencies": {
     "@nut-tree-fork/nut-js": "^4.2.6",
     "opencv4nodejs-prebuilt-install": "^4.1.209",
-    "screenshot-desktop": "^1.15.1"
+    "screenshot-desktop": "^1.15.1",
+    "sharp": "^0.34.3"
   }
 }

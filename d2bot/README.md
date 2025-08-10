@@ -63,6 +63,18 @@ data/templates/        ← known minimap layout PNGs
 
 ---
 
+### Login flow (prototype)
+Add a few UI templates to `data/ui/` (crops of the buttons/labels on your screen):
+- `main_online.png`, `main_offline.png`, `realm_west.png`
+- `char_select.png`, `diff_nightmare.png`, `diff_hell.png`, `play.png`
+- mode: Online | Offline
+- characterSlot: 1..8 (row in the character list)
+
+Run:
+```bash
+node app.js login
+```
+
 ## TODO
 
 ### Core Bot Engine

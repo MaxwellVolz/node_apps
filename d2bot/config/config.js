@@ -16,11 +16,18 @@ const DEFAULTS = {
 
 function validate(cfg) {
   const errors = [];
-  if (!cfg.motd || typeof cfg.motd !== 'string') errors.push('motd must be a non-empty string');
   const diffs = ['Normal', 'Nightmare', 'Hell'];
+  const modes = ['Online', 'Offline'];
+
+  if (!cfg.motd || typeof cfg.motd !== 'string') errors.push('motd must be a non-empty string');
   if (!diffs.includes(cfg.difficulty)) errors.push(`difficulty must be one of: ${diffs.join(', ')}`);
   if (!cfg.realm) errors.push('realm is required');
   if (!cfg.character) errors.push('character is required');
+
+  if (!modes.includes(cfg.mode)) errors.push(`mode must be one of: ${modes.join(', ')}`);
+  if (!Number.isInteger(cfg.characterSlot) || cfg.characterSlot < 1 || cfg.characterSlot > 8) {
+    errors.push('characterSlot must be an integer between 1 and 8');
+  }
 
   if (errors.length) {
     const e = new Error('Invalid config:\n - ' + errors.join('\n - '));
@@ -29,18 +36,24 @@ function validate(cfg) {
   }
 }
 
+
 function applyEnvOverrides(cfg) {
-  // e.g. D2BOT_MOTD="yo"
   const map = {
     D2BOT_MOTD: 'motd',
     D2BOT_DIFFICULTY: 'difficulty',
     D2BOT_REALM: 'realm',
     D2BOT_CHARACTER: 'character',
+    D2BOT_MODE: 'mode',                 // NEW
+    D2BOT_CHARACTER_SLOT: 'characterSlot' // NEW
   };
-  for (const [envKey, pathKey] of Object.entries(map)) {
-    if (process.env[envKey]) cfg[pathKey] = process.env[envKey];
+  for (const [envKey, key] of Object.entries(map)) {
+    if (process.env[envKey] != null) {
+      const v = process.env[envKey];
+      cfg[key] = key === 'characterSlot' ? Number(v) : v;
+    }
   }
 }
+
 
 export async function loadConfig({ withEnv = true } = {}) {
   let raw;
