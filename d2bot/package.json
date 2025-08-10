@@ -5,6 +5,8 @@
   "main": "app.js",
   "scripts": {
     "start": "node app.js",
+    "config:print": "node app.js config print",
+    "config:set": "node app.js config set",
     "test": "node --test",
     "test:watch": "node --test --watch"
   },

@@ -1,21 +1,35 @@
-import { writeFile, readFile } from 'node:fs/promises';
+import { loadConfig, watchConfig } from './config/config.js';
+import { handleConfigCli } from './cli/configCli.js';
 
-let config;
+const [,, cmd, ...rest] = process.argv;
 
-try {
-  const configRaw = await readFile('config.json', 'utf8');
-  config = JSON.parse(configRaw);
-} catch (err) {
-  console.error('Failed to read or parse config.json:', err.message);
-  process.exit(1);
+if (cmd === 'config') {
+  // CLI mode
+  try {
+    const code = await handleConfigCli(rest);
+    process.exit(code ?? 0);
+  } catch (e) {
+    console.error(e.message);
+    process.exit(1);
+  }
 }
 
-const motd = config.motd;
+// --- Bot runtime mode ---
+let config = await loadConfig();
 
-if (!motd) {
-  console.error('Missing `motd` in config.json');
-  process.exit(1);
-}
-else{
-    console.log(motd);
-}
+console.log(`[bot] starting with character=${config.character}, realm=${config.realm}, difficulty=${config.difficulty}`);
+console.log(`[bot] motd: ${config.motd}`);
+
+const closeWatch = watchConfig((fresh) => {
+  config = fresh;
+  console.log('[bot] config reloaded:', { character: config.character, difficulty: config.difficulty });
+});
+
+// Your bot loop entry would go here.
+// e.g., startModules(config);
+
+// Clean shutdown
+process.on('SIGINT', () => {
+  closeWatch();
+  process.exit(0);
+});
