@@ -1,3 +1,7 @@
+# Custom
+*/build/*
+*/node_modules/*
+
 # Logs
 logs
 *.log

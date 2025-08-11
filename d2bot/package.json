@@ -8,15 +8,21 @@
     "config:print": "node app.js config print",
     "config:set": "node app.js config set",
     "test": "node --test",
-    "test:watch": "node --test --watch"
+    "test:watch": "node --test --watch",
+    "build:sea": "node --experimental-sea-config sea-config.json",
+    "inject:sea": "powershell -NoProfile -Command \"$node=(Get-Command node).Source; New-Item -ItemType Directory -Force build | Out-Null; Copy-Item $node ./build/node_base.exe -Force; npx postject ./build/node_base.exe NODE_SEA_BLOB ./main.sea --overwrite --sentinel-fuse NODE_SEA_FUSE_fce680ab2cc467b6e072b8b5df1996b2; if (Test-Path ./build/d2bot.exe) { Remove-Item ./build/d2bot.exe -Force }; Move-Item ./build/node_base.exe ./build/d2bot.exe -Force\"",
+    "bundle:native": "node scripts/bundle-native.js",
+    "dist": "npm run build:sea && npm run inject:sea && npm run bundle:native"
   },
   "keywords": [],
   "author": "Maxwell",
   "description": "",
   "dependencies": {
     "@nut-tree-fork/nut-js": "^4.2.6",
-    "opencv4nodejs-prebuilt-install": "^4.1.209",
-    "screenshot-desktop": "^1.15.1",
-    "sharp": "^0.34.3"
+    "opencv.js": "^1.2.1",
+    "screenshot-desktop": "^1.15.1"
+  },
+  "devDependencies": {
+    "postject": "^1.0.0-alpha.6"
   }
 }

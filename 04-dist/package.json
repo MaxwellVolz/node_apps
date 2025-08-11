@@ -1,0 +1,16 @@
+{
+    "name": "04-dist",
+    "type": "module",
+    "version": "0.0.1",
+    "scripts": {
+        "start": "node app.js",
+        "build:sea": "node --experimental-sea-config sea-config.json",
+        "inject:sea": "powershell -NoProfile -Command \"$node=(Get-Command node).Source; New-Item -ItemType Directory -Force build | Out-Null; Copy-Item $node ./build/node_base.exe -Force; npx postject ./build/node_base.exe NODE_SEA_BLOB ./main.sea --overwrite --sentinel-fuse NODE_SEA_FUSE_fce680ab2cc467b6e072b8b5df1996b2; if (Test-Path ./build/04-dist.exe) { Remove-Item ./build/04-dist.exe -Force }; Move-Item ./build/node_base.exe ./build/04-dist.exe -Force\"",
+        "dist": "npm run build:sea && npm run inject:sea"
+      },
+    "author": "Maxwell",
+    "description": "",
+    "devDependencies": {
+        "postject": "^1.0.0-alpha.6"
+    }
+}

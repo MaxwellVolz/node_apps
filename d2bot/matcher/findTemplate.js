@@ -1,25 +1,23 @@
 // matcher/findTemplate.js
-import cv from "opencv4nodejs-prebuilt-install";
 import fs from "node:fs/promises";
+import { importOpenCV } from "../core/native-imports.js";
 
-/**
- * Returns { ok, x, y, confidence, w, h }
- * (x,y) is the click center in absolute screen coords.
- */
 export async function findTemplateOnScreen(screenBuf, templatePath, {
-  method = cv.TM_CCOEFF_NORMED,
+  method = 'TM_CCOEFF_NORMED',
   threshold = 0.86,
   grayscale = true
 } = {}) {
+  const cv = await importOpenCV();
   const screen = cv.imdecode(screenBuf);
   const tplBuf = await fs.readFile(templatePath);
   const tpl = cv.imdecode(tplBuf);
 
+  const m = cv[method] ?? cv.TM_CCOEFF_NORMED;
   const src = grayscale ? screen.cvtColor(cv.COLOR_BGR2GRAY) : screen;
   const tmp = grayscale ? tpl.cvtColor(cv.COLOR_BGR2GRAY) : tpl;
 
-  const res = src.matchTemplate(tmp, method);
-  const { maxLoc, maxVal } = res.minMaxLoc(); // best match
+  const res = src.matchTemplate(tmp, m);
+  const { maxLoc, maxVal } = res.minMaxLoc();
 
   if (maxVal >= threshold) {
     const centerX = maxLoc.x + Math.floor(tmp.cols / 2);
@@ -29,9 +27,6 @@ export async function findTemplateOnScreen(screenBuf, templatePath, {
   return { ok: false, confidence: maxVal };
 }
 
-/**
- * Tries multiple templates; returns the best passing threshold.
- */
 export async function findAnyTemplate(screenBuf, templatePaths, options) {
   let best = { ok: false, confidence: -1 };
   for (const p of templatePaths) {
