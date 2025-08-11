@@ -16,6 +16,7 @@
     "opencv.js": "^1.2.1",
     "pixelmatch": "^7.1.0",
     "pngjs": "^7.0.0",
+    "robotjs": "^0.6.0",
     "screenshot-desktop": "^1.15.1",
     "sharp": "^0.34.3",
     "win-screenshot": "^1.0.4"

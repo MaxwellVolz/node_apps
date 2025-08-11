@@ -5,6 +5,7 @@ import { readFile } from 'node:fs/promises';
 import { Window } from 'node-screenshots';
 import cvReady from '@techstark/opencv-js';
 import { PNG } from 'pngjs';
+import robot from 'robotjs';
 
 const cv = await cvReady; // 4.11+ init
 const __filename = fileURLToPath(import.meta.url);
@@ -56,3 +57,35 @@ console.log({
 frame.delete(); frameGray.delete();
 tpl.delete(); tplGray.delete();
 result.delete();
+
+
+// Log In
+const is_login = maxVal >= THRESH;
+const { x, y } = win;
+
+if (is_login) {
+    setTimeout(() => {
+        console.log("Logging in...")
+    }, 1000);
+
+    robot.moveMouseSmooth(x + 800, y + 1000, 1);
+    robot.mouseClick('left');
+
+    setTimeout(() => {
+        console.log("NIGHTMARE NIGHTMARE NIGHTMARE")
+    }, 1000);
+
+    robot.moveMouseSmooth(x + 950, y + 550, 1);
+    robot.mouseClick('left');
+}
+
+
+// Move to Waypoint
+// TODO
+
+// Waypoint Selection
+robot.moveMouseSmooth(x + 420, y + 250, 1);
+
+// Durance Selection
+robot.moveMouseSmooth(x + 420, y + 800, 1);
+

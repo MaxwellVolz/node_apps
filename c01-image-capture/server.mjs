@@ -10,7 +10,6 @@ const isSEA = !!process.versions?.sea;
 const appRoot = isSEA ? path.dirname(process.execPath) : process.cwd();
 const capturesDir = path.join(appRoot, 'captures');
 
-
 const app = express();
 app.use(express.json());
 app.use(express.static('public')); // serves index.html
