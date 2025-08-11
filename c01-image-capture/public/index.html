@@ -1,0 +1,115 @@
+<!doctype html>
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <title>D2 Window Capture</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <style>
+      body { font-family: ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Arial; margin: 20px; }
+      button { padding: 8px 12px; }
+      select { min-width: 420px; padding: 6px; }
+      .row { display: flex; gap: 12px; align-items: center; margin: 10px 0; }
+      #log { white-space: pre-wrap; font-family: ui-monospace, SFMono-Regular, Consolas, monospace; background: #111; color: #c7f; padding: 10px; border-radius: 8px; height: 180px; overflow: auto; }
+    </style>
+  </head>
+  <body>
+    <h1>Window Capture (OpenCV.js + Web UI)</h1>
+
+    <div class="row">
+      <label for="winSel">Application window:</label>
+      <select id="winSel"></select>
+      <button id="refresh">Refresh</button>
+    </div>
+
+    <div class="row">
+      <input id="fname" placeholder="capture file name (optional).png" style="min-width: 300px" />
+      <button id="capture">Screenshot Selected Window</button>
+    </div>
+
+    <div id="log"></div>
+
+    <script>
+      const winSel = document.getElementById('winSel');
+      const logEl = document.getElementById('log');
+      const fname = document.getElementById('fname');
+    
+      function log(...a){ logEl.textContent += a.join(' ') + "\n"; logEl.scrollTop = logEl.scrollHeight; }
+    
+      async function loadWindows() {
+        const r = await fetch('/api/windows');
+        const list = await r.json();
+        if (!Array.isArray(list)) {
+          log('Unexpected /api/windows result:', JSON.stringify(list));
+          winSel.innerHTML = '';
+          return;
+        }
+    
+        // rebuild options
+        winSel.innerHTML = '';
+        list.forEach((w, i) => {
+          const opt = document.createElement('option');
+          opt.value = JSON.stringify(w);
+          opt.textContent = `${w.title} (${w.width}×${w.height})`;
+          winSel.appendChild(opt);
+        });
+    
+        // default-select the first window whose title contains "Diablo II" (case-insensitive)
+        const targetIdx = list.findIndex(w => typeof w.title === 'string' && /diablo\s*ii/i.test(w.title));
+        if (targetIdx >= 0) {
+          winSel.selectedIndex = targetIdx;
+        } else if (list.length) {
+          winSel.selectedIndex = 0; // fallback
+        }
+    
+        log('Loaded', list.length, 'windows',
+            targetIdx >= 0 ? `— selected: ${list[targetIdx].title}` : '');
+      }
+    
+      document.getElementById('refresh').onclick = loadWindows;
+    
+      // auto-refresh every 3s, but keep current selection if still present
+      let polling = setInterval(async () => {
+        const prev = winSel.value;
+        await loadWindows();
+        if (prev) {
+          // try to restore selection if the exact JSON exists
+          const idx = Array.from(winSel.options).findIndex(o => o.value === prev);
+          if (idx >= 0) winSel.selectedIndex = idx;
+        }
+      }, 3000);
+    
+      // initial load
+      loadWindows();
+    
+      document.getElementById('capture').onclick = async () => {
+        const sel = winSel.value;
+        if (!sel) return alert('No window selected');
+        const w = JSON.parse(sel);
+        const body = {
+          left: w.left, top: w.top, width: w.width, height: w.height,
+          fileName: fname.value || undefined
+        };
+        const r = await fetch('/api/capture', {
+          method: 'POST',
+          headers: {'Content-Type': 'application/json'},
+          body: JSON.stringify(body)
+        });
+        const j = await r.json();
+        if (j.ok) {
+          log('Saved:', j.path);
+          if (j.url) {
+            const a = document.createElement('a');
+            a.href = j.url;
+            a.target = '_blank';
+            a.textContent = 'Open image';
+            logEl.appendChild(a);
+            logEl.appendChild(document.createTextNode('\n'));
+          }
+        } else {
+          log('Error:', j.error || 'unknown');
+        }
+      };
+    </script>
+    
+  </body>
+</html>

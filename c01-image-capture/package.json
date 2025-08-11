@@ -1,0 +1,21 @@
+{
+  "name": "c01-image-capture",
+  "version": "0.0.1",
+  "type": "module",
+  "scripts": {
+    "dev": "node server.mjs",
+    "build:sea": "node --experimental-sea-config sea-config.json",
+    "inject:sea": "powershell -NoProfile -Command \"$node=(Get-Command node).Source; New-Item -ItemType Directory -Force build | Out-Null; Copy-Item $node ./build/node_base.exe -Force; npx postject ./build/node_base.exe NODE_SEA_BLOB ./main.sea --overwrite --sentinel-fuse NODE_SEA_FUSE_fce680ab2cc467b6e072b8b5df1996b2; if (Test-Path ./build/capture-web.exe) { Remove-Item ./build/capture-web.exe -Force }; Move-Item ./build/node_base.exe ./build/capture-web.exe -Force\"",
+    "dist": "npm run build:sea && npm run inject:sea"
+  },
+  "dependencies": {
+    "express": "^5.1.0",
+    "node-window-manager": "^2.2.4",
+    "opencv.js": "^1.2.1",
+    "pngjs": "^7.0.0",
+    "screenshot-desktop": "^1.15.1"
+  },
+  "devDependencies": {
+    "postject": "^1.0.0-alpha.6"
+  }
+}

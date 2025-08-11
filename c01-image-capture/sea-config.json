@@ -1,0 +1,10 @@
+{
+    "main": "bootstrap.cjs",
+    "output": "main.sea",
+    "disableExperimentalSEAWarning": true,
+    "resources": [
+      "public/**/*",
+      "scripts/list-windows.ps1"
+    ]
+  }
+  
