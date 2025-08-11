@@ -1,63 +1,58 @@
-import { loadConfig, watchConfig } from './config/config.js';
-import { handleConfigCli } from './cli/configCli.js';
-import { login } from './flows/login.js';
+// app.js (ESM, Node 20/22)
+import path from 'node:path';
+import { fileURLToPath } from 'node:url';
+import { readFile } from 'node:fs/promises';
+import { Window } from 'node-screenshots';
+import cvReady from '@techstark/opencv-js';
+import { PNG } from 'pngjs';
 
-const [,, cmd, ...rest] = process.argv;
+const cv = await cvReady; // 4.11+ init
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
 
-if (cmd === 'config') {
-  try {
-    const code = await handleConfigCli(rest);
-    process.exit(code ?? 0);
-  } catch (e) {
-    console.error(e.message);
-    process.exit(1);
-  }
+const THRESH = 0.90;
+
+// RGBA PNG buffer -> cv.Mat (CV_8UC4)
+function matFromPngBuffer(buf) {
+  const png = PNG.sync.read(buf); // {data,width,height} RGBA
+  const mat = new cv.Mat(png.height, png.width, cv.CV_8UC4);
+  mat.data.set(png.data);
+  return mat;
 }
 
+// 1) Pick the window
+const win = Window.all().find(w => /diablo/i.test(w.appName || w.title || ''));
+if (!win) throw new Error('Diablo window not found');
 
-if (cmd === 'monitor') {
-  const cfg = await loadConfig();
-  const intervalSec = cfg.screenCheckInterval ?? 5; // default 5s
+// 2) Capture window to PNG buffer -> Mat (gray)
+const pngBuf = await (await win.captureImage()).toPng();
+const frame = matFromPngBuffer(pngBuf);
+const frameGray = new cv.Mat();
+cv.cvtColor(frame, frameGray, cv.COLOR_RGBA2GRAY);
 
-  console.log(`[monitor] Checking screen every ${intervalSec}s...`);
-  setInterval(async () => {
-    const result = await detectScreen();
-    if (result.ok) {
-      console.log(`[monitor] ${result.state} (${(result.confidence*100).toFixed(1)}%)`);
-    } else {
-      console.log(`[monitor] Unknown screen`);
-    }
-  }, intervalSec * 1000);
+// 3) Load template (/assets/login_image.png) -> Mat (gray)
+const tplBuf = await readFile(path.join(__dirname, 'assets', 'login_image.png'));
+const tpl = matFromPngBuffer(tplBuf);
+const tplGray = new cv.Mat();
+cv.cvtColor(tpl, tplGray, cv.COLOR_RGBA2GRAY);
 
-  // Keep process alive
-  process.stdin.resume();
-  process.exitCode = 0; // optional
+// 4) Bail if template is bigger than frame
+if (frameGray.cols < tplGray.cols || frameGray.rows < tplGray.rows) {
+  console.log('Template larger than frame → not a match'); process.exit(0);
 }
 
-if (cmd === 'login') {
-  const cfg = await loadConfig();
-  console.log('[bot] login flow…');
-  try {
-    await login(cfg);
-    console.log('[bot] login complete');
-  } catch (e) {
-    console.error('[bot] login failed:', e.message);
-    process.exit(1);
-  }
-  process.exit(0);
-}
+// 5) Template match
+const result = new cv.Mat();
+cv.matchTemplate(frameGray, tplGray, result, cv.TM_CCOEFF_NORMED);
+const { maxVal, maxLoc } = cv.minMaxLoc(result);
 
-// --- default runtime ---
-let config = await loadConfig();
-console.log(`[bot] starting with character=${config.character}, realm=${config.realm}, difficulty=${config.difficulty}`);
-console.log(`[bot] motd: ${config.motd}`);
-
-const closeWatch = watchConfig((fresh) => {
-  config = fresh;
-  console.log('[bot] config reloaded:', { character: config.character, difficulty: config.difficulty });
+console.log({
+  found: maxVal >= THRESH,
+  score: Number(maxVal.toFixed(5)),
+  rect: maxVal >= THRESH ? { x: maxLoc.x, y: maxLoc.y, w: tplGray.cols, h: tplGray.rows } : null
 });
 
-process.on('SIGINT', () => {
-  closeWatch();
-  process.exit(0);
-});
+// Cleanup
+frame.delete(); frameGray.delete();
+tpl.delete(); tplGray.delete();
+result.delete();
