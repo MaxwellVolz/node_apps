@@ -6,5 +6,12 @@
     "runTimeoutMs": 120000,
     "pointerScale": { "x": 1.0, "y": 1.0 },
     "pointerOffset": { "x": 0, "y": 0 },
-    "debug": true
+    "debug": true,
+    "windowTitlePattern": "Diablo II: Resurrected",
+    "clicks": {
+      "login": { "x": 960, "y": 900 },
+      "town1": { "x": 1000, "y": 700 },
+      "town2": { "x": 1050, "y": 720 },
+      "town3": { "x": 1100, "y": 740 }
+    }
   }
