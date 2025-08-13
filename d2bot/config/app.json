@@ -1,0 +1,10 @@
+{
+    "inputBackend": "kbm",      
+    "vision": "basic_color",        
+    "fcrPauseMs": 90,     
+    "logLevel": "info",
+    "runTimeoutMs": 120000,
+    "pointerScale": { "x": 1.0, "y": 1.0 },
+    "pointerOffset": { "x": 0, "y": 0 },
+    "debug": true
+  }

@@ -1,0 +1,12 @@
+{
+    "uniques": [
+      "The Oculus","Skin of the Vipermagi","Arachnid Mesh","War Traveler",
+      "Magefist","Frostburn","Lidless Wall","Tal Rasha's Adjudication",
+      "Tal Rasha's Fine-Spun Cloth","Gull Dagger"
+    ],
+    "runesAtLeast": "Lem",
+    "rings": { "keepIf": ["+MF >= 25", "+FCR >= 10"] },
+    "ammys": { "keepIf": ["+2 Sorc", "+FCR >= 10"] },
+    "bases": { "monarch": { "eth": false, "sockets": [0,4] } }
+  }
+  

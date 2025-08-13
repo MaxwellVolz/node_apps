@@ -1,27 +1,14 @@
 {
-  "name": "c01-image-capture",
-  "version": "0.0.1",
-  "type": "module",
-  "scripts": {
-    "dev": "node server.mjs",
-    "build:sea": "node --experimental-sea-config sea-config.json",
-    "inject:sea": "powershell -NoProfile -Command \"$node=(Get-Command node).Source; New-Item -ItemType Directory -Force build | Out-Null; Copy-Item $node ./build/node_base.exe -Force; npx postject ./build/node_base.exe NODE_SEA_BLOB ./main.sea --overwrite --sentinel-fuse NODE_SEA_FUSE_fce680ab2cc467b6e072b8b5df1996b2; if (Test-Path ./build/capture-web.exe) { Remove-Item ./build/capture-web.exe -Force }; Move-Item ./build/node_base.exe ./build/capture-web.exe -Force\"",
-    "dist": "npm run build:sea && npm run inject:sea"
-  },
-  "dependencies": {
-    "@techstark/opencv-js": "^4.11.0-release.1",
-    "express": "^5.1.0",
-    "node-screenshots": "^0.2.1",
-    "node-window-manager": "^2.2.4",
-    "opencv.js": "^1.2.1",
-    "pixelmatch": "^7.1.0",
-    "pngjs": "^7.0.0",
-    "robotjs": "^0.6.0",
-    "screenshot-desktop": "^1.15.1",
-    "sharp": "^0.34.3",
-    "win-screenshot": "^1.0.4"
-  },
-  "devDependencies": {
-    "postject": "^1.0.0-alpha.6"
-  }
+    "name": "d2bot",
+    "type": "module",
+    "scripts": {
+        "start": "node --enable-source-maps src/main.js",
+        "lint": "eslint .",
+        "fix": "eslint . --fix"
+    },
+    "dependencies": {
+        "node-window-manager": "^2.2.4",
+        "pngjs": "^7.0.0",
+        "robotjs": "^0.6.0"
+    }
 }

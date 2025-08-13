@@ -1,0 +1,8 @@
+{
+    "sequence": [
+      { "bot": "RunMephisto", "enabled": true }
+    ],
+    "repeat": true,
+    "townEveryNRuns": 2
+  }
+  
